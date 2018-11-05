@@ -1,12 +1,8 @@
 var context;
 var AudioFileBuffer = null;
 
-$('body').ready(function(){
-  alert("loaded jquery");
-})
-
-window.addEventListener('load', init, false);
-function init() {
+$(document).ready(function(){
+  // Init the audio context
   try {
     // Fix up for prefixing
     window.AudioContext = window.AudioContext||window.webkitAudioContext;
@@ -15,7 +11,11 @@ function init() {
     alert('Web Audio API is not supported in this browser');
   }
   loadAudioFile("sample.wav");
-}
+
+  $('#startPlaying').click(function(){
+		playSound(AudioFileBuffer);
+	});
+})
 
 function loadAudioFile(url) {
   var request = new XMLHttpRequest();
@@ -26,15 +26,12 @@ function loadAudioFile(url) {
   request.onload = function() {
     context.decodeAudioData(request.response, function(buffer) {
       AudioFileBuffer = buffer;
-    }, onError());
+    }, function(e){
+    	console.log(e);
+    });
   }
   request.send();
 }
-
-function onError(e){
-	console.log(e);
-}
-
 
 function playSound(buffer) {
   var source = context.createBufferSource(); // creates a sound source
@@ -43,9 +40,3 @@ function playSound(buffer) {
   source.start(0);                           // play the source now
                                              // note: on older systems, may have to use deprecated noteOn(time);
 }
-
-$(document).ready(function(){
-	$('#startPlaying').click(function(){
-		playSound(AudioFileBuffer);
-	});
-});
